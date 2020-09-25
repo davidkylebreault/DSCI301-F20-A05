@@ -1,0 +1,151 @@
+---
+title: "Assignment5"
+author: "David Kyle Breault"
+date: "9/20/2020"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(readr)
+library(here)
+```
+
+Load in the data
+
+## Problem 1
+
+```{r}
+Project1.here <- here("Project1","zoo2.csv")
+Project1 <- read_csv(Project1.here,
+                     col_types = cols(
+  animal_name = col_character(),
+  hair = col_logical(),
+  feathers = col_logical(),
+  eggs = col_logical(),
+  milk = col_logical(),
+  airborne = col_logical(),
+  aquatic = col_logical(),
+  predator = col_logical(),
+  toothed = col_logical(),
+  backbone = col_logical(),
+  breathes = col_logical(),
+  venomous = col_double(),
+  fins = col_logical(),
+  legs = col_double(),
+  tail = col_logical(),
+  domestic = col_logical(),
+  catsize = col_logical(),
+  class_type = col_character()
+))
+
+## All of the columns were parsed as a double except for animal_name which was parsed as a character. All of the other columns with the except of legs and class_type used 1 and 0s to display logicals, or True and False. For preliminary analysis, these columns were parsed to logicals to display True and False, but this may be changed later as future analysis occurs. class_type was intially parsed as a double, but it was changed to a character. This is because each number in class_type represents a specific type of animal (example: 3 is reptiles, 4 fish, 5 amphibians, 6 insects, 7 non-insect invertebrates.)
+```
+
+## Problem 2
+
+```{r}
+## What percent of the species in this data are aquatic?
+
+(sum(Project1$aquatic)/43)*100
+
+```
+
+The brief summary statistics of this column shows that about 47% of the species in this data are aquatic. There is nothing problematic with this column. However, a large spread of the species are aquatic, so it will be worth investigating why. Currently there is no cleaning required for this variable, as there are no NA values and every entry is registered as a logical.
+
+## Problem 3
+
+```{r}
+##Class_type is currently numbers saved as characters. It would make data interpretation and visualization easier if class_type are given the proper names respective to what information it holds.
+
+Project1$class_type
+
+
+Project1.2 <- Project1%>%
+  mutate(new_species=
+           case_when(
+    class_type=="3"~"reptiles",
+    class_type=="4"~"fish",
+    class_type=="5"~"amphibians",
+    class_type=="6"~"insects",
+    class_type=="7"~"non-insect invertebrates"
+  ))
+```
+
+Now check for covariation between being aquatic and species type
+
+```{r}
+Project1.2%>%
+  filter(aquatic==TRUE)%>%
+  group_by(new_species)%>%
+  ggplot()+
+  geom_bar(mapping=aes(x=new_species,fill=new_species))+
+  labs(title="Species that are aquatic",
+       x="Class Type",
+       y="Number of Aquatic Species")
+```
+
+There appears to be a slight relationship between species type and if they are aquatic. Fish appear to be the most aquatic from the list of species and non-insect invertebrates the least. It may be a good idea to take the percent of amphibians, fish, non-insect invertebrates and reptiles that are aquatic and compare that way. The reason for this being that their are unequal numbers of different types of species.
+
+
+```{r}
+Project1.2%>%
+  filter(aquatic==FALSE)%>%
+  count(new_species)
+
+##12 insects, 3 non insect invertebrates, and 8 reptiles have (n) species that are not aquatic
+
+Project1.2%>%
+  filter(aquatic==TRUE)%>%
+  count(new_species)
+
+##0 insects, 3, non insect invertebrates, 4 reptiles, 7 fish, and 6 amphibians have (n) species that are aquatic
+
+## Insect aquatic
+#0%
+## Non insect invertebrates
+#50%
+## Reptiles
+#33%
+## Amphibians
+#100%
+## Fish
+#100%
+
+Project1.2per <- Project1.2%>%
+  mutate(percent_aquatic=
+           case_when(
+    new_species=="reptiles"~"33",
+    new_species=="fish"~"100",
+    new_species=="amphibians"~"100",
+    new_species=="insects"~"0",
+    new_species=="non-insect invertebrates"~"50"
+  ))
+  class(Project1.2per$percent_aquatic)
+  a <- as.numeric(Project1.2per$percent_aquatic)
+  a
+  class(Project1.2per$percent_aquatic)
+```
+
+Perform analysis
+
+```{r}
+## Will need to convert percent_aquatic to numeric
+a <- as.numeric(Project1.2per$percent_aquatic)
+
+## Generate a graph showing what percent of the species in the data is aquatic
+Project1.2per%>%
+  ggplot()+
+  geom_point(aes(y=a,x=new_species,color=new_species))+
+  labs(title="Species that are aquatic",
+       x="Class Type",
+       y="Percent of Aquatic Species")
+```
+
+Showing the percent may be a better way to interpret the data becuase the different species values have different amounts of species listed. 100% of the amphibians and fish are aquatic, 50% of the non-insect invertebrates, 33% of the reptiles, and 0% of the insects.
