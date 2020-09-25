@@ -22,7 +22,7 @@ Load in the data
 ## Problem 1
 
 ```{r}
-Project1.here <- here("Project1","zoo2.csv")
+Project1.here <- here("zoo2.csv")
 Project1 <- read_csv(Project1.here,
                      col_types = cols(
   animal_name = col_character(),
@@ -127,10 +127,6 @@ Project1.2per <- Project1.2%>%
     new_species=="insects"~"0",
     new_species=="non-insect invertebrates"~"50"
   ))
-  class(Project1.2per$percent_aquatic)
-  a <- as.numeric(Project1.2per$percent_aquatic)
-  a
-  class(Project1.2per$percent_aquatic)
 ```
 
 Perform analysis
