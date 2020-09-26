@@ -48,6 +48,8 @@ Project1 <- read_csv(Project1.here,
 ## All of the columns were parsed as a double except for animal_name which was parsed as a character. All of the other columns with the except of legs and class_type used 1 and 0s to display logicals, or True and False. For preliminary analysis, these columns were parsed to logicals to display True and False, but this may be changed later as future analysis occurs. class_type was intially parsed as a double, but it was changed to a character. This is because each number in class_type represents a specific type of animal (example: 3 is reptiles, 4 fish, 5 amphibians, 6 insects, 7 non-insect invertebrates.)
 ```
 
+<span style="color: green; font-size: 14pt">You should really write your commentary into the text of the document rather than comments in the code.</span> 
+
 ## Problem 2
 
 ```{r}
@@ -129,6 +131,16 @@ Project1.2per <- Project1.2%>%
   ))
 ```
 
+
+<span style="color: green; font-size: 14pt">This seems like something that you should be able to do in R--it looks like you are computing this by hand.  Try this:</span> 
+
+```{r}
+Project1.2 %>%
+  group_by(new_species) %>%
+  summarize(Percent_Aquatic = mean(aquatic)) 
+```
+
+
 Perform analysis
 
 ```{r}
@@ -145,3 +157,18 @@ Project1.2per%>%
 ```
 
 Showing the percent may be a better way to interpret the data becuase the different species values have different amounts of species listed. 100% of the amphibians and fish are aquatic, 50% of the non-insect invertebrates, 33% of the reptiles, and 0% of the insects.
+
+<span style="color: green; font-size: 14pt">I'm thinking columns may work better than points here:</span> 
+
+```{r}
+Project1.2 %>%
+  group_by(new_species) %>%
+  summarize(Percent_Aquatic = mean(aquatic)) %>%
+  ggplot()+
+  geom_col(aes(y=Percent_Aquatic,x=new_species,fill=new_species))+
+  labs(title="Species that are aquatic",
+       x="Class Type",
+       y="Percent of Aquatic Species", fill = "Species")
+```
+
+<span style="color: green; font-size: 14pt">This seems like a somewhat smallish data set, so I'm not sure what this really represents.  (Make sure to discuss the data set and what it represents in your project.)</span> 
